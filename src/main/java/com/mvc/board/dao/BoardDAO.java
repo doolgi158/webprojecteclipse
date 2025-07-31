@@ -43,8 +43,8 @@ public class BoardDAO {
 		query.append("ORDER BY NUM DESC");
 	
 		try(Connection conn = getConnection();
-				PreparedStatement pstmt = conn.prepareStatement(query.toString());
-				ResultSet rs = pstmt.executeQuery()){
+			PreparedStatement pstmt = conn.prepareStatement(query.toString());
+			ResultSet rs = pstmt.executeQuery()){
 		
 			while(rs.next()) {
 				list.add(addBoard(rs));
@@ -54,5 +54,96 @@ public class BoardDAO {
 			//se.printStackTrace(); // 오류 발생 시 주석 해제
 		}
 		return list;
+	}
+
+	public int boardInsert(BoardVO boardVO) {
+		/*String query = """
+		 * 	INSERT INTO BOARD (NUM, AUTHOR, TITLE, CONTENT, PASSWD)
+		 * 	VALUES (BOARD_SEQ.NEXTVAL, ?, ?, ?, ?)
+		 */
+		
+		StringBuilder query = new StringBuilder();
+		query.append("INSERT INTO BOARD(NUM, AUTHOR, TITLE, CONTENT, PASSWD) ");
+		query.append("VALUES(BOARD_SEQ.NEXTVAL, ?, ?, ?, ?)");
+		
+		int result = 0;
+		
+		try(Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement(query.toString())) {	// 주석 부분을 해제하고 사용한다면 query.toString() -> query로 변경.
+			
+			pstmt.setString(1, boardVO.getAuthor());
+			pstmt.setString(2, boardVO.getTitle());
+			pstmt.setString(3, boardVO.getContent());
+			pstmt.setString(4, boardVO.getPasswd());
+			
+			result = pstmt.executeUpdate();
+		}catch(SQLException e) {
+			System.err.println("[boardInsert] SQL 오류: " + e.getMessage());
+			//e.printStackTrace();	// 오류 발생 시 주석 해제
+		}
+		
+		return result;
+	}
+
+	public void readCount(BoardVO boardVO) {
+		StringBuilder query = new StringBuilder();
+		query.append("UPDATE BOARD SET READCNT = READCNT + 1 ");
+		query.append("WHERE NUM = ?");
+		
+		try(Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement(query.toString());) {
+			pstmt.setInt(1,boardVO.getNum());
+			pstmt.executeUpdate();
+		}catch(SQLException e) {
+			System.err.println("[readCount] SQL 오류: " + e.getMessage());
+			//e.printStackTrace();	// 오류 발생 시 주석 해제
+		}
+	}
+
+	public BoardVO boardDetail(BoardVO boardVO) {
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT NUM, AUTHOR, TITLE, CONTENT, ");
+		query.append("TO_CHAR(WRITEDAY, 'YYYY-MM-DD HH24:MI:SS') WRITEDAY, READCNT ");
+		query.append("FROM BOARD WHERE NUM = ?");
+		BoardVO resultData = null;
+		
+		try(Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+			pstmt.setInt(1, boardVO.getNum());
+			try(ResultSet rs = pstmt.executeQuery()) {
+				if(rs.next()) {
+					resultData = addBoard(rs);
+					resultData.setContent(rs.getString("content"));
+				}
+			}
+		}catch(SQLException e) {
+			System.err.println("[boardDetail] SQL 오류: " + e.getMessage());
+			//e.printStackTrace();	// 오류 발생 시 주석 해제
+		}
+		return resultData;
+	}
+
+	public int boardUpdate(BoardVO boardVO) {
+		StringBuilder query = new StringBuilder();
+		query.append("UPDATE BOARD ");
+		query.append("SET TITLE = ?, CONTENT = ?, PASSWD = ? WHERE NUM = ?");
+		
+		int result = 0;
+		
+		try(Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement(query.toString())) {	// 주석 부분을 해제하고 사용한다면 query.toString() -> query로 변경.
+			
+			pstmt.setString(1, boardVO.getTitle());
+			pstmt.setString(2, boardVO.getContent());
+			pstmt.setString(3, boardVO.getPasswd());
+			pstmt.setInt(4, boardVO.getNum());
+			
+			result = pstmt.executeUpdate();
+		}catch(SQLException e) {
+			System.err.println("[boardUpdate] SQL 오류: " + e.getMessage());
+			//e.printStackTrace();	// 오류 발생 시 주석 해제
+		}
+		
+		return result;
 	}
 }

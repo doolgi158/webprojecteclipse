@@ -5,7 +5,10 @@
 <body>
 	<div class="container">
 		<div class="text-center"><h3>게시판 리스트</h3></div>
-		
+			<%-- post 방식으로 전송 시 form 태그 정의. --%>
+			<form name="detailForm" id="detailForm">
+				<input type="hidden" name="num" id="num" />
+			</form>	
 		<div id="boardList">
 			<table summary="게시판 리스트" class="table">
 				<thead>
@@ -25,6 +28,7 @@
 									<td>${ board.num }</td>
 									<td class="text-start">
 										<span class="goDetail">${ board.title }</span>
+										<%-- <a href="/board/detailBoard.do?num=${ board.num }">${ board.title }</a> --%>
 									</td>
 									<td>${ board.author }</td>
 									<td>${ board.writeday }</td>

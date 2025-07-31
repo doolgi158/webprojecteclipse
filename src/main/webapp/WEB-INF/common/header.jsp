@@ -9,7 +9,7 @@
 	<title>게시판</title>
 	<link href="/image/icon.png" rel="icon" type="image/x-icon" />
 	
-	<link rel="stylesheet" href="https://cdn.jsdeliver.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="/include/css/common.css" />
 </head>
 <body>
