@@ -15,3 +15,36 @@ $(".goDetail").on("click", function(){
 	// get 방식으로 상세 페이지 이동
 	//locationProcess(`/board/detailBoard.do?num=${ num }`);
 });
+
+//입력 양식 enter 제거 또는 검색 기능 부여
+$("#keyword").on("keydown", function(event) {
+	if(event.key === "Enter") {
+		event.preventDefault();
+		//$("#searchData").click();	// 검색 버튼 클릭과 동일한 동작 실행
+	}
+});
+
+$("#search").on("change", function() {
+	const selected = $(this).val();
+	
+	if(selected === "all") {
+		$("#keyword").val("").attr("placeholder", "");
+	}else {
+		$("#keyword")
+			.val("")
+			.attr("placeholder", "검색어 입력");
+	}
+});
+
+// 검색 버튼 클릭 시 처리 이벤트
+$("#searchData").on("click", () => {
+	const searchType = $("#search").val();
+	
+	if(searchType !== "all") {
+		if(!checkForm("#keyword", "검색어를")) return;
+	}else {
+		$("#keyword").val("");	// '전체' 선택 시 검색어 초기화
+	}
+	
+	actionProcess("#f_search", "post", "/board/getBoardList.do");
+});

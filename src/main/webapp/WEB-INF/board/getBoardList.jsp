@@ -9,6 +9,26 @@
 			<form name="detailForm" id="detailForm">
 				<input type="hidden" name="num" id="num" />
 			</form>	
+		<form id="f_search" name="f_search" >
+			<div class="row g-2 align-items-center">
+				<div class="col-auto">
+					<label for="search">검색조건</label>
+				</div>
+				<div class="col-auto">
+					<select id="search" name="search" class="form-select form-select-sm">
+						<option value="all">전체조회</option>
+						<option value="title">제목</option>
+						<option value="author">작성자</option>
+					</select>
+				</div>
+				<div class="col-auto">
+					<input type="text" name="keyword" id="keyword" class="form-control form-control-sm" />
+				</div>
+				<div class="col-auto">
+					<button type="button" id="searchData" class="btn btn-primary btn-sm">검색</button>
+				</div>
+			</div>
+		</form>
 		<div id="boardList">
 			<table summary="게시판 리스트" class="table">
 				<thead>
@@ -52,6 +72,12 @@
 	</div>
 	<%@ include file="/WEB-INF/common/footer.jsp" %>
 	<script src="/include/js/getBoardList.js"></script>
-	<!-- <script src=""></script> 파일 생성 주석 해제 -->
+	<script>
+		// 검색 후 검색 대상과 검색 단어 출럭 - 검색여부는 키워드(keyword)의 값 존재여부로 제어
+		if('${ param.keyword }' != "") {
+			$("#keyword").val('${ param.keyword }');
+			$("#search").val('${ param.search }');
+		}
+	</script>
 </body>
 </html>

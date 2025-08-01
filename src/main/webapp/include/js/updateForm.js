@@ -3,5 +3,9 @@ $("#boardListBtn").on("click", () => {
 });
 
 $("#boardUpdateBtn").on("click", () =>{
-	actionProcess("#f_updateForm", "post", "/board/updateBoard.do");	
+	if(!chkData("#title", "제목을")) return;
+	else if (!chkData("#content", "작성할 내용을")) return;
+	else {
+		actionProcess("#f_updateForm", "post", "/board/updateBoard.do");
+	}
 });

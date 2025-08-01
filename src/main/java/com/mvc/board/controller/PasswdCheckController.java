@@ -8,30 +8,23 @@ import com.mvc.board.service.BoardServiceImpl;
 import com.mvc.board.vo.BoardVO;
 import com.mvc.common.controller.Controller;
 
-public class UpdateBoardController implements Controller {
+public class PasswdCheckController implements Controller {
 
 	@Override
 	public String execute(HttpServletRequest request, HttpServletResponse response) {
-		String path = null;
-
+		String num = request.getParameter("num");
 		String passwd = request.getParameter("passwd");
-		if(passwd.isEmpty()) passwd="";	// 비밀번호가 비어있을 때 null이 아닌 ""(빈문자)로 제어를 위해 설정
 		
 		BoardVO boardVO = new BoardVO();
-		boardVO.setTitle(request.getParameter("title"));
-		boardVO.setContent(request.getParameter("content"));
+		boardVO.setNum(Integer.parseInt(num));
 		boardVO.setPasswd(passwd);
-		boardVO.setNum(Integer.parseInt(request.getParameter("num")));
-		BoardService service = BoardServiceImpl.getInstance();
-		int result = service.boardUpdate(boardVO);
 		
-		if(result == 1) {
-			path = "/board/detailBoard.do?num=" + boardVO.getNum();
-		} else {
-			path = "/error/errorPage";
-		}
-
-		return path;
+		BoardService service = BoardServiceImpl.getInstance();
+		int result = service.boardPasswdCheck(boardVO);
+		
+		request.setAttribute("resultData", result);
+		
+		return "/common/resultData";
 	}
 
 }

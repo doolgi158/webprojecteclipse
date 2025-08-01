@@ -55,6 +55,43 @@ public class BoardDAO {
 		}
 		return list;
 	}
+	
+	public List<BoardVO> boardList(BoardVO boardVO) {
+		List<BoardVO> list = new ArrayList<BoardVO>();
+		String search = boardVO.getSearch();
+		String keyword = boardVO.getKeyword();
+		
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT NUM, AUTHOR, TITLE, ");
+		query.append("TO_CHAR(WRITEDAY, 'YYYY/MM/DD') WRITEDAY, READCNT ");
+		query.append("FROM BOARD ");
+		switch(search) {
+			case "title" :
+				query.append(" WHERE TITLE LIKE ? ");	// 검색새상이 제목일 경우
+				break;
+			case "author" :
+				query.append(" WHERE AUTHOR LIKE ? ");	// 검색대상이 작성자일 경우
+				break;
+		}
+		query.append(" ORDER BY NUM DESC");
+		
+		try(Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement(query.toString());) {
+			if(!search.equals("all")) {
+				pstmt.setString(1, "%" + keyword + "%");
+			}
+				
+			try(ResultSet rs = pstmt.executeQuery()){
+				while(rs.next()) {
+					list.add(addBoard(rs));
+				}
+			}
+		}catch(SQLException e) {
+			System.err.println("[boardList] SQL 오류: " + e.getMessage());
+			//se.printStackTrace(); // 오류 발생 시 주석 해제
+		}
+		return list;
+	}
 
 	public int boardInsert(BoardVO boardVO) {
 		/*String query = """
@@ -126,7 +163,9 @@ public class BoardDAO {
 	public int boardUpdate(BoardVO boardVO) {
 		StringBuilder query = new StringBuilder();
 		query.append("UPDATE BOARD ");
-		query.append("SET TITLE = ?, CONTENT = ?, PASSWD = ? WHERE NUM = ?");
+		query.append("SET TITLE = ?, CONTENT = ? ");	// 제목과 내용은 변경된 내용이, 기존값 그대로
+		if(boardVO.getPasswd()!="") query.append(", PASSWD = ? ");	// 비밀번호는 변경할 수도 하지 않을 수도 있음.
+		query.append("WHERE NUM = ? ");	// 수정의 기준은 글번호
 		
 		int result = 0;
 		
@@ -135,8 +174,13 @@ public class BoardDAO {
 			
 			pstmt.setString(1, boardVO.getTitle());
 			pstmt.setString(2, boardVO.getContent());
-			pstmt.setString(3, boardVO.getPasswd());
-			pstmt.setInt(4, boardVO.getNum());
+			
+			if(boardVO.getPasswd() != "") {
+				pstmt.setString(3, boardVO.getPasswd());
+				pstmt.setInt(4, boardVO.getNum());
+			} else {
+				pstmt.setInt(3, boardVO.getNum());
+			}
 			
 			result = pstmt.executeUpdate();
 		}catch(SQLException e) {
@@ -144,6 +188,49 @@ public class BoardDAO {
 			//e.printStackTrace();	// 오류 발생 시 주석 해제
 		}
 		
+		return result;
+	}
+
+	public int boardDelete(BoardVO boardVO) {
+		StringBuilder query = new StringBuilder();
+		query.append("DELETE FROM BOARD WHERE NUM = ?");
+		
+		int result = 0;
+		try(Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement(query.toString());) {
+			pstmt.setInt(1, boardVO.getNum());
+			result = pstmt.executeUpdate();
+		}catch(SQLException e) {
+			System.err.println("[boardDelete] SQL 오류: " + e.getMessage());
+			//e.printStackTrace();	// 오류 발생 시 주석 해제
+		}
+		return result;
+	}
+
+	public int boardPasswdCheck(BoardVO boardVO) {
+		String query = """
+			SELECT CASE
+				WHEN EXISTS (SELECT 1 FROM BOARD WHERE NUM = ? AND PASSWD = ?)
+					THEN 1
+					ELSE 0
+				END AS RESULT
+			FROM DUAL
+			""";
+		int result = 0;
+		try(Connection conn = getConnection();
+			PreparedStatement pstmt = conn.prepareStatement(query);) {
+			pstmt.setInt(1, boardVO.getNum());
+			pstmt.setString(2, boardVO.getPasswd());
+			
+			try(ResultSet rs = pstmt.executeQuery()) {
+				if(rs.next()) {
+					result = rs.getInt("result");	// 비밀번호 일치: 1 / 비밀번호 불일치: 0 반환
+				}
+			}
+		}catch(SQLException e) {
+			System.err.println("[boardPasswdCheck] SQL 오류: " + e.getMessage());
+			//e.printStackTrace();	// 오류 발생 시 주석 해제
+		}
 		return result;
 	}
 }

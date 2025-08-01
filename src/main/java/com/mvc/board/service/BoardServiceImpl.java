@@ -27,6 +27,12 @@ public class BoardServiceImpl implements BoardService{
 	}
 
 	@Override
+	public List<BoardVO> boardList(BoardVO boardVO) {
+		List<BoardVO> list = dao.boardList(boardVO);
+		return list;
+	}
+	
+	@Override
 	public int boardInsert(BoardVO boardVO) {
 		int result = dao.boardInsert(boardVO);
 		return result;
@@ -53,6 +59,18 @@ public class BoardServiceImpl implements BoardService{
 	@Override
 	public int boardUpdate(BoardVO boardVO) {
 		int result = dao.boardUpdate(boardVO);
+		return result;
+	}
+
+	@Override
+	public int boardDelete(BoardVO boardVO) {
+		int result = dao.boardDelete(boardVO);
+		return result;
+	}
+
+	@Override
+	public int boardPasswdCheck(BoardVO boardVO) {
+		int result = dao.boardPasswdCheck(boardVO);
 		return result;
 	}
 }
